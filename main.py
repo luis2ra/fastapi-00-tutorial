@@ -1,64 +1,80 @@
+from typing import Optional
 
-from enum import Enum
-
-from fastapi import FastAPI, UploadFile, File
-
-class ModelName(str, Enum):
-    alexnet = "alexnet"
-    resnet = "resnet"
-    lenet = "lenet"
+from fastapi import FastAPI
 
 app = FastAPI()
 
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World..."}
-
-@app.get("/items/{item_id}")
-async def read_item(item_id):
-    return {"item_id": item_id}
-
-@app.get("/items2/{item_id}")
-async def read_item2(item_id: int):
-    return {"item_id": item_id}
-
-@app.get("/users/me")
-async def read_user_me():
-    return {"user_id": "the current user"}
-
-@app.get("/users/{user_id}")
-async def read_user(user_id: str):
-    return {"user_id": user_id}
-
-#Predefined values
-@app.get("/model/{model_name}")
-async def get_model(model_name: ModelName):
-    if model_name == ModelName.alexnet:
-        return {"model_name": model_name, "message": "Deep Learning FTW!"}
-    if model_name.value == "lenet":
-        return {"model_name": model_name, "message": "LeCNN all the images"}
-    return {"model_name": model_name, "message": "Have some residuals"}
-
-# Path parameters containing paths
-@app.get("/files/{file_path:path}")
-async def read_file(file_path: str):
-    return {"file_path": file_path}
-
-@app.post("/uploadfile/")
-async def create_upload_file(file: UploadFile = File(...)):
-    return {"filename": file.filename}
+fake_items_db = [{"item_name": "Foo"}, {"item_name": "Bar"}, {"item_name": "Baz"}]
 
 
 '''
-Summary:
-
-Path Parameters
-
-* You can declare path "parameters" or "variables" with the same syntax used by Python format strings.
-* You can declare the type of a path parameter in the function, using standard Python type annotations.
-* Data conversion / Data validation
-* Pydantic (For all the data validation)
-* Order matters (when creating path operations)
+Defaults
+As query parameters are not a fixed part of a path, they can be optional and can have default values.
+'''
+@app.get("/items/")
+async def read_item(skip: int = 0, limit: int = 10):
+    return fake_items_db[skip : skip + limit]
 
 '''
+Optional parameters
+The same way, you can declare optional query parameters, by setting their default to None.
+'''
+@app.get("/items-v2/{item_id}")
+async def read_item_v2(item_id: str, q: Optional[str] = None):
+    if q:
+        return {"item_id": item_id, "q": q}
+    return {"item_id": item_id}
+
+'''
+Query parameter type conversion
+You can also declare bool types, and they will be converted.
+'''
+@app.get("/items-v3/{item_id}")
+async def read_item_v3(item_id: str, q: Optional[str] = None, short: bool = False):
+    item = {"item_id": item_id}
+    if q:
+        item.update({"q": q})
+    if not short:
+        item.update(
+            {"description": "This is an amazing item that has a long description"}
+        )
+    return item
+
+'''
+Multiple path and query parameters
+You can declare multiple path parameters and query parameters at the same time, FastAPI knows which is which.
+
+And you don't have to declare them in any specific order.
+'''
+@app.get("/users/{user_id}/items/{item_id}")
+async def read_user_item(user_id: int, item_id: str, q: Optional[str] = None, short: bool = False):
+    item = {"item_id": item_id, "owner_id": user_id}
+    if q:
+        item.update({"q": q})
+    if not short:
+        item.update(
+            {"description": "This is an amazing item that has a long description"}
+        )
+    return item
+
+'''
+Required query parameters
+When you declare a default value for non-path parameters (for now, we have only seen query parameters), then it is not required.
+
+If you don't want to add a specific value but just make it optional, set the default as None.
+
+But when you want to make a query parameter required, you can just not declare any default value.
+'''
+@app.get("/items-v4/{item_id}")
+async def read_item_v4(item_id: str, needy: str):
+    item = {"item_id": item_id, "needy": needy}
+    return item
+
+
+'''
+You can define some parameters as required, some as having a default value, and some entirely optional.
+'''
+@app.get("/items-v5/{item_id}")
+async def read_item_v5(item_id: str, needy: str, skip: int = 0, limit: Optional[int] = None):
+    item = {"item_id": item_id, "needy": needy, "skip": skip, "limit": limit}
+    return item
