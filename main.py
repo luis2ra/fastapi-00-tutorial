@@ -1,4 +1,12 @@
-from fastapi import FastAPI
+
+from enum import Enum
+
+from fastapi import FastAPI, UploadFile, File
+
+class ModelName(str, Enum):
+    alexnet = "alexnet"
+    resnet = "resnet"
+    lenet = "lenet"
 
 app = FastAPI()
 
@@ -22,6 +30,24 @@ async def read_user_me():
 @app.get("/users/{user_id}")
 async def read_user(user_id: str):
     return {"user_id": user_id}
+
+#Predefined values
+@app.get("/model/{model_name}")
+async def get_model(model_name: ModelName):
+    if model_name == ModelName.alexnet:
+        return {"model_name": model_name, "message": "Deep Learning FTW!"}
+    if model_name.value == "lenet":
+        return {"model_name": model_name, "message": "LeCNN all the images"}
+    return {"model_name": model_name, "message": "Have some residuals"}
+
+# Path parameters containing paths
+@app.get("/files/{file_path:path}")
+async def read_file(file_path: str):
+    return {"file_path": file_path}
+
+@app.post("/uploadfile/")
+async def create_upload_file(file: UploadFile = File(...)):
+    return {"filename": file.filename}
 
 
 '''
