@@ -1,3 +1,4 @@
+# 05: Query Parameters and String Validations
 from typing import Optional, List
 
 from fastapi import FastAPI, Query
@@ -96,4 +97,23 @@ async def read_items10(q: Optional[str] = Query(None, alias="item-query")):
     if q:
         results.update({"q": q})
     return results
-    
+
+
+# Deprecating parameters
+@app.get("/items11/")
+async def read_items11(
+    q: Optional[str] = Query(
+        None,
+        alias="item-query",
+        title="Query string",
+        description="Query string for the items to search in the database that have a good match",
+        min_length=3,
+        max_length=50,
+        regex="^fixedquery$",
+        deprecated=True,
+    )
+):
+    results = {"items": [{"item_id": "Foo"}, {"item_id": "Bar"}]}
+    if q:
+        results.update({"q": q})
+    return results

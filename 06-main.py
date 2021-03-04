@@ -1,10 +1,11 @@
+# 06: Path Parameters and Numeric Validations
 from typing import Optional
 
 # Import Path
 from fastapi import FastAPI, Path, Query
 
-app = FastAPI()
 
+app = FastAPI()
 
 
 @app.get("/items/{item_id}")

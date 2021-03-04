@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from models import models
 from schemas import schemas
 
+
 def get_user(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id == user_id).first()
 
@@ -25,8 +26,28 @@ def create_user(db: Session, user: schemas.UserCreate):
     return db_user
 
 
+def update_user(user_id: int, user: schemas.UserUpdate, db: Session):
+    db.query(models.User).filter(models.User.id == user_id).update({
+        'is_active': user.is_active,
+        'email': user.email
+    })
+    db.commit()
+
+    return db.query(models.User).filter(models.User.id == user_id).first()
+
+
+def delete_user(user_id: int, db: Session):
+    if db.query(models.User).filter(models.User.id == user_id).count():
+        user = db.query(models.User).filter(models.User.id == user_id).first()
+        db.delete(user)
+        db.commit()
+
+        return "deleted record"
+    return "no exist record with id equal to " + str(user_id)
+
+
 def get_items(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Item).offset(skip).limit(limit).all()
+    return db.query(models.Item).filter(models.Item.owner_id != None).offset(skip).limit(limit).all()
 
 
 def create_user_item(db: Session, item: schemas.ItemCreate, user_id: int):
