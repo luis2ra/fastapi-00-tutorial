@@ -56,7 +56,6 @@ def read_childs(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 @app.post("/childs/", response_model=child_schema.Child)
 def create_child(child: child_schema.ChildCreate, db: Session = Depends(get_db)):
     db_child = crud.create_child(db, child=child)
-    print('mirando', db_child)
     # if db_child:
     #     raise HTTPException(status_code=400, detail="Child already registered")
     return db_child

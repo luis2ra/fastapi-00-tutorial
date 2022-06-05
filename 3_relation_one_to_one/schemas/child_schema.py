@@ -8,13 +8,12 @@ class ChildBase(BaseModel):
 
 
 class ChildCreate(ChildBase):
-    pass
-    #parent_id: int
+    parent_id: int
 
 
 class Child(ChildBase):
     id: int
-    #parent_id: int
+    parent_id: int
     
     class Config:
         orm_mode = True

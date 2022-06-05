@@ -4,10 +4,13 @@ from sqlalchemy.orm import relationship
 from database import Base
 
 
-association_table = Table('association', Base.metadata,
-    Column('user_id', Integer, ForeignKey('users.id')),
-    Column('item_id', Integer, ForeignKey('items.id'))
-)
+class AssociationTable(Base):
+    __tablename__ = "association"
+    
+    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    item_id = Column(Integer, ForeignKey('items.id'), primary_key=True)
+    user = relationship("User", back_populates="items")
+    item = relationship("Item", back_populates="users")
 
 
 class User(Base):
@@ -19,9 +22,8 @@ class User(Base):
     is_active = Column(Boolean, default=True)
 
     items = relationship(
-        "Item", 
-        secondary=association_table,
-        back_populates="owners"
+        "AssociationTable", 
+        back_populates="user"
     )
 
 
@@ -31,10 +33,8 @@ class Item(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
     description = Column(String, index=True)
-    # owner_id = Column(Integer, ForeignKey("users.id"))
 
-    owners = relationship(
-        "User",
-        secondary=association_table,
-        back_populates="items"
+    users = relationship(
+        "AssociationTable",
+        back_populates="item"
     )

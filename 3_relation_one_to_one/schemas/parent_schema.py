@@ -14,7 +14,7 @@ class ParentCreate(ParentBase):
 
 class Parent(ParentBase):
     id: int
-    child: List[Child] = []
+    children: Child
 
     class Config:
         orm_mode = True

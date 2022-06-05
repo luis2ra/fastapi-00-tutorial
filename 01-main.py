@@ -1,7 +1,6 @@
 # 01: First Steps
 from fastapi import FastAPI
 
-
 app = FastAPI()
 
 

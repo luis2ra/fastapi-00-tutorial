@@ -23,7 +23,12 @@ def create_parent(db: Session, parent: parent_schema.ParentCreate):
 
 
 def get_childs(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Child).offset(skip).limit(limit).all()
+    data = db.query(models.Child).offset(skip).limit(limit).all()
+    print('data', data)
+    # dict_data = data.dict()
+    for item in data:
+        print('parent', item.parent_id)
+    return data
 
 
 def create_child(db: Session, child: child_schema.ChildCreate):

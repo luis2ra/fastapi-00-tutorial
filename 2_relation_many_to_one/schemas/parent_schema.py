@@ -1,7 +1,6 @@
 from typing import List, Optional
 
 from pydantic import BaseModel
-from schemas.child_schema import Child
 
 
 class ParentBase(BaseModel):
@@ -9,12 +8,12 @@ class ParentBase(BaseModel):
 
 
 class ParentCreate(ParentBase):
-    pass
+    child_id: int
 
 
 class Parent(ParentBase):
     id: int
-    child: List[Child] = []
+    child_id: int
 
     class Config:
         orm_mode = True

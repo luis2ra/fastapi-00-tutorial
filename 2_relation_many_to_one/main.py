@@ -53,6 +53,14 @@ def read_childs(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return childs
 
 
+@app.get("/childs/{child_id}", response_model=child_schema.Child)
+def read_child(child_id: int, db: Session = Depends(get_db)):
+    db_child = crud.get_child(db, child_id=child_id)
+    if db_child is None:
+        raise HTTPException(status_code=404, detail="Child not found")
+    return db_child
+
+
 @app.post("/childs/", response_model=child_schema.Child)
 def create_child(child: child_schema.ChildCreate, db: Session = Depends(get_db)):
     db_child = crud.create_child(db, child=child)
